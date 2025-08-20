@@ -10,13 +10,15 @@ public class PlayerController : MonoBehaviour
     //public variables
     public float speed = 0;
     public TextMeshProUGUI countText;
+    public TextMeshProUGUI moneyText; 
     public GameObject winTextObject; 
 
     // private variables 
     private Rigidbody rb;
     private float movementX;
     private float movementY;
-    private int count; 
+    private int count;
+    private int money; 
 
 
 
@@ -26,8 +28,10 @@ public class PlayerController : MonoBehaviour
         
         rb = GetComponent<Rigidbody>();
         count = 0;
+        money = 0; 
 
         SetCountText();
+        SetMoneyText();
         winTextObject.SetActive(false); 
 
 
@@ -48,17 +52,34 @@ public class PlayerController : MonoBehaviour
     void SetCountText()
     {
         countText.text = "Score: " + count.ToString();
-        if (count >= 45)
+        if (count >= 10)
         {
             winTextObject.SetActive (true);
+            Destroy(GameObject.FindGameObjectWithTag("Enemy")); 
         }
     }
 
+    void SetMoneyText()
+    {
+        moneyText.text = "Coins: " + money.ToString(); 
+
+    }
     private void FixedUpdate()
     {
         //Debug.Log("FixedUpdate"); 
         Vector3 movement = new Vector3(movementX, 0.0f, movementY);
         rb.AddForce(movement * speed); 
+    }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            Destroy(gameObject);
+
+            winTextObject.gameObject.SetActive (true);
+            winTextObject.GetComponent<TextMeshProUGUI>().text = "You Lose!";
+
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -73,8 +94,8 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("Coin"))
         {
             other.gameObject.SetActive(false);
-            count += 5;
-            SetCountText();
+            money += 1;
+            SetMoneyText();
         }
 
         
